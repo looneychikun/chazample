@@ -1,0 +1,21 @@
+{
+  "name": "chazample",
+  "version": "1.0.0",
+  "description": "Base npm for client/server",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/looneychikun/chazample.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/looneychikun/chazample/issues"
+  },
+  "homepage": "https://github.com/looneychikun/chazample#readme",
+  "dependencies": {
+    "grpc-tools": "^1.7.1"
+  }
+}
