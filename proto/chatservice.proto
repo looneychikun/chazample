@@ -1,0 +1,97 @@
+// Syntax is always proto3
+syntax = "proto3";
+
+// Options for naming our generated packages
+package chat;
+option go_package="chatpb";
+
+// Import a wellknown pb type from Google
+import "google/protobuf/timestamp.proto";
+
+// Standard protobuf messages for passing data
+message User {
+  string username = 1;
+}
+
+message ChatMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  User user = 2;
+  string text = 3;
+}
+
+// ENUMS! Basically for gRPC default handling
+// https://developers.google.com/protocol-buffers/docs/proto3#default
+enum STATUS {
+  STATUS_UNKNOWN = 0;
+  STATUS_OK = 1;
+  STATUS_FAIL = 2;
+}
+
+enum LoginType {
+  LOGIN_UNKNOWN = 0;
+  LOGIN = 1;
+  LOGOUT = 2;
+}
+
+// Wrap the messages in API specific Request/Response patterns
+// Even for simple requests, for extendability later
+message LoginRequest {
+  User user = 1;
+  LoginType type = 2;
+}
+
+message LoginResponse {
+  STATUS status = 1;
+}
+
+// Empty message, just give me the list yo
+message UserListRequest {}
+
+message UserListResponse {
+  repeated User users = 1;
+}
+
+// UserUpdates will keep the client updated on who's logged in
+// Another empty message, we just want to attach to the server's push
+message UserUpdatesRequest {}
+
+message UserUpdatesResponse {
+  User user = 1;
+  LoginType type = 2;
+}
+
+// How much history do we want?
+message ChatHistoryRequest {
+  int32 num_messages = 1;
+}
+
+message ChatHistoryResponse {
+  repeated ChatMessage messages = 1;
+}
+
+// And finally our actual chat Service
+message ChatRequest {
+  ChatMessage chat = 1;
+}
+
+message ChatResponse {
+  ChatMessage chat = 1;
+}
+
+// Define our service and it's interface
+service ChatService {
+  // Login and Logout - Unary
+  rpc Login(LoginRequest) returns (LoginResponse) {};
+
+  // Get a list of users - Unary
+  rpc UserList(UserListRequest) returns (UserListResponse) {};
+
+  // Attach to list of users - Server Streaming
+  rpc UserUpdates(UserUpdatesRequest) returns (stream UserUpdatesResponse) {};
+
+  // Load our history - Unary
+  rpc ChatHistory(ChatHistoryRequest) returns (ChatHistoryResponse) {};
+
+  // Our main chat interface - BiDi Streaming
+  rpc Chat(stream ChatRequest) returns (stream ChatResponse) {};
+}
